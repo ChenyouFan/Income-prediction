@@ -55,27 +55,38 @@ np.random.seed(17)
 w = np.random.normal(size=[510, 1])
 b = np.random.normal(size=1)
 
-iterations = 5000       # 迭代次数
-beta = 0.9      # SGDM超参数
+iterations = 5500       # 迭代次数
+batch_size = 2048
+beta = 0.95      # SGDM超参数
 # 动量初始化
 vw = np.zeros((510, 1))
 vb = 0
+index = np.arange(len(x_train))
 
 for i in range(iterations):
-    # 前向传播预测结果
-    A, loss = logistic_regression(x_train, y_train, w, b)
-    if i % 100 == 0:        # 每100轮用验证集验证一次
+
+    for j in range(math.floor(len(x_train) / batch_size)):
+        x_batch_train = x_train[j * batch_size: (j + 1) * batch_size, :]
+        y_batch_train = y_train[j * batch_size: (j + 1) * batch_size, :]
+
+        # 前向传播预测结果
+        A, loss = logistic_regression(x_batch_train, y_batch_train, w, b)
+
+        # 反向传播，链式法则求导，计算梯度
+        dz = A - y_batch_train        # dz=dL/dA * dA/dL  L为损失函数，A=sigmoid(z)
+        dw = np.dot(x_batch_train.T, dz) / x_batch_train.shape[0]
+        db = np.sum(dz, axis=0) / x_batch_train.shape[0]
+
+        # SGDM优化
+        vw = beta * vw + (1 - beta) * dw
+        vb = beta * vb + (1 - beta) * db
+        w -= vw
+        b -= vb
+
+    if i % 100 == 0:  # 每100轮用验证集验证一次
         A_val, loss_val = logistic_regression(x_val, y_val, w, b)
-        print('after ' + str(i) + ' epoch, the validation loss is:', float(loss_val), ',the training loss is:', float(loss))
-    # 反向传播，链式法则求导，计算梯度
-    dz = A - y_train        # dz=dL/dA * dA/dL  L为损失函数，A=sigmoid(z)
-    dw = np.dot(x_train.T, dz) / x_train.shape[0]
-    db = np.sum(dz, axis=0) / x_train.shape[0]
-    # SGDM优化
-    vw = beta * vw + (1 - beta) * dw
-    vb = beta * vb + (1 - beta) * db
-    w -= vw
-    b -= vb
+        A_train, loss_train = logistic_regression(x_train, y_train, w, b)
+        print('after ' + str(i) + ' epoch, the validation loss is:', float(loss_val), ',the training loss is:', float(loss_train))
 
 np.save('weights.npy', w)
 np.save('bias.npy', b)
