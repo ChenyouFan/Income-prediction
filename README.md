@@ -6,4 +6,4 @@
 X_test用于提交到Kaggle   
 Kaggle网址: https://www.kaggle.com/c/ml2020spring-hw2   
    
-项目在Kaggle private leaderboard上获得<strong>0.27890</strong>的Score
+项目在Kaggle private leaderboard上获得<strong>0.27717</strong>的Score
