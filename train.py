@@ -56,7 +56,7 @@ w = np.random.normal(size=[510, 1])
 b = np.random.normal(size=1)
 
 iterations = 5500       # 迭代次数
-batch_size = 2048
+batch_size = 2048       # mini-batch大小
 beta = 0.95      # SGDM超参数
 # 动量初始化
 vw = np.zeros((510, 1))
@@ -65,6 +65,7 @@ index = np.arange(len(x_train))
 
 for i in range(iterations):
 
+    # 采用mini-batch进行训练
     for j in range(math.floor(len(x_train) / batch_size)):
         x_batch_train = x_train[j * batch_size: (j + 1) * batch_size, :]
         y_batch_train = y_train[j * batch_size: (j + 1) * batch_size, :]
